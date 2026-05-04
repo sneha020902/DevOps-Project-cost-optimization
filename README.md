@@ -1,108 +1,110 @@
-# AWS Cloud Cost Optimization - Identifying Stale EBS Snapshots
+# 🧹 AWS Cloud Cost Optimization — Stale EBS Snapshot Cleanup
 
-## 📌Project Overview
-This project focuses on optimizing AWS cloud costs by identifying and deleting stale EBS snapshots using a Lambda function. The function automates the cleanup process by detecting snapshots that are no longer associated with active EC2 instances and removing them to reduce unnecessary storage costs.
+![Python](https://img.shields.io/badge/Python-3776AB?style=flat-square&logo=python&logoColor=white)
+![AWS Lambda](https://img.shields.io/badge/AWS_Lambda-FF9900?style=flat-square&logo=awslambda&logoColor=white)
+![Amazon EC2](https://img.shields.io/badge/Amazon_EC2-FF9900?style=flat-square&logo=amazonec2&logoColor=white)
+![Boto3](https://img.shields.io/badge/Boto3-232F3E?style=flat-square&logo=amazon&logoColor=white)
 
-## 🚀Features
-- Automated Snapshot Cleanup: Identifies and deletes unassociated EBS snapshots.
-- Lambda Function Execution: Runs on AWS Lambda with Python and Boto3.
-- AWS IAM Role & Permissions: Configures necessary policies for snapshot management.
-- Cost Optimization: Reduces AWS storage costs by deleting unused snapshots.
-- Customizable Execution Time: Adjustable timeout to optimize function execution.
+---
 
-## 🛠️Setup Instructions
+## 🧩 The Problem
 
-### Step 1: Launch an EC2 Instance
-1. Create EC2 Instance:
-   - Name: Any of your choice
-   - OS: Ubuntu
-   - Instance Type: t2.micro (modifiable)
-   - Key Pair: .pem format (RSA encryption)
-   - Default settings remain unchanged
-   - Ensure a volume is connected (1 default, add more if needed)
-2. Launch Instance and wait until the status changes to "Running".
+AWS accounts accumulate stale EBS snapshots over time — snapshots whose original volumes or instances no longer exist. These sit silently in your account, costing money every month without providing any value. Manually hunting them down is tedious and error-prone.
 
-### Step 2: Create EBS Snapshot
-1. Identify your volume:
-   - Check the last three characters of your volume ID (e.g., 98u, 456, jf4).
-2. Create a snapshot:
-   - Select "Volumes" in EC2 Dashboard.
-   - Find the volume using the last three digits.
-   - Add a description (e.g., "test").
-   - Click "Create Snapshot".
+---
 
-### Step 3: Create an AWS Lambda Function
-1. Go to AWS Lambda and create a new function:
-   - Name: Any of your choice
-   - Runtime: Python 3.10
-   - Architecture: x86_64
-   - Permissions: Default permissions (Modify later)
-2. Copy the script from your GitHub repository and paste it into the Lambda function.
-3. Save (Ctrl+S / Cmd+S) and Deploy.
+## ✅ The Solution
 
-### Step 4: Configure Lambda Test Event
-1. Click "Test" → Create a new event.
-2. Enter a name (e.g., "test").
-3. Save and run the test (It will fail initially due to timeout and permission issues).
+A serverless AWS Lambda function written in Python (Boto3) that automatically:
+- Scans all EBS snapshots owned by the account
+- Checks if each snapshot's volume still exists and is attached to a running instance
+- Deletes any snapshot that is stale (volume deleted or instance terminated)
 
-### Step 5: Modify Execution Timeout
-1. Go to "Configuration" → "General Settings".
-2. Edit the timeout and increase it to 10 seconds.
-3. Save the settings.
+No servers. No manual work. Just automated cost savings.
 
-### Step 6: Modify IAM Role & Permissions
-1. Go to "Configuration" → "Permissions".
-2. Click the linked IAM role to modify permissions.
-3. Add permissions for managing EBS snapshots:
-   - Click "Add Permissions" → "Attach Policies" → "Create Policy".
-   - Choose "Service": EC2.
-   - In "Actions Allowed", add:
-     - DescribeSnapshots
-     - DeleteSnapshot
-   - Set "Resources" to "All".
-   - Click "Next" → "Name Policy" → "Create Policy".
-4. Attach the newly created policy to the Lambda role.
+---
 
-### Step 7: Execute Lambda Function
-- Run the test again, and it will successfully identify and delete stale snapshots.
-- If a snapshot is attached to an instance, it won't be deleted.
-- Experiment with different scenarios by creating and deleting volumes & snapshots.
+## 🏗️ Architecture
 
-### Step 8: Cleanup
-- Delete EC2 Instance: Shuts down associated volumes.
-- Delete Lambda Function: To avoid unnecessary charges.
-- Delete IAM Policies (if no longer needed).
+AWS Lambda (Python 3.12)
+│
+├── boto3.describe_snapshots()     → Get all owned snapshots
+├── boto3.describe_instances()     → Get all running instances
+├── boto3.describe_volumes()       → Check if volume still exists
+└── boto3.delete_snapshot()        → Delete stale snapshots
+│
+└── CloudWatch Logs          → Logs every deletion with snapshot ID
 
-## 📌Technologies Used
-- AWS Lambda - Serverless function execution
-- Amazon EC2 - Virtual machine management
-- Amazon EBS - Elastic Block Store snapshots
-- IAM Roles & Policies - Secure resource access
-- Python (Boto3) - AWS SDK for automation
 
-## 📜Problem Statement
-### Challenge:
-AWS users often accumulate unnecessary EBS snapshots, leading to increased storage costs. Manually identifying and deleting stale snapshots is inefficient and prone to errors.
+---
 
-### Solution:
-This project automates the process of detecting and removing stale EBS snapshots using an AWS Lambda function. By leveraging Boto3, it scans all snapshots, checks if their associated volumes are in use, and deletes the stale ones to optimize storage costs.
+## 🛠️ Tech Stack
 
-## References
-- AWS Boto3 Documentation: https://boto3.amazonaws.com/v1/documentation/api/latest/index.html
-- AWS Lambda Guide: https://docs.aws.amazon.com/lambda/latest/dg/welcome.html
+| Tool | Purpose |
+|---|---|
+| AWS Lambda | Serverless function execution |
+| Python 3.12 + Boto3 | AWS SDK for automation |
+| Amazon EC2 + EBS | Snapshot management |
+| AWS IAM | Permissions for Lambda to manage snapshots |
+| CloudWatch Logs | Execution logging and monitoring |
 
-## ⚠️Important Notes
-- AWS charges for running instances and Lambda execution time. Delete unused resources.
-- Ensure proper IAM permissions to avoid security risks.
-- Modify execution time carefully to balance cost and performance.
+---
 
-## 🏆Future Enhancements
-- Implement a logging mechanism for snapshot tracking.
-- Add SNS notifications when snapshots are deleted.
-- Enhance with CloudWatch metrics for monitoring.
+## 📸 Screenshots
 
-## 📜License
-This project is licensed under the MIT License.
+### Lambda Execution — Status: Succeeded
+![Lambda Execution](screenshots/Screenshot%204.png)
 
-## 💬Contact
-For any questions, feel free to reach out via GitHub Issues.
+### CloudWatch Logs — Snapshot Deletion Confirmed
+![CloudWatch Logs](screenshots/Screenshot%202.png)
+
+### EBS Snapshots Page — Cleaned Up
+![Snapshots Gone](screenshots/Screenshot%205-%20snapshot%20is%20gone.png)
+
+---
+
+## 🚀 How to Deploy
+
+### Prerequisites
+- AWS account
+- IAM permissions: `DescribeSnapshots`, `DeleteSnapshot`, `DescribeInstances`, `DescribeVolumes`
+
+### Step 1 — Create Lambda Function
+- Runtime: Python 3.12
+- Paste the code from `cost-optimization.py`
+- Set timeout to **10 seconds**
+
+### Step 2 — Attach IAM Policy
+- Go to Configuration → Permissions → IAM Role
+- Attach `AmazonEC2FullAccess` (or create a custom policy with minimum required permissions)
+
+### Step 3 — Test
+- Create a test event with empty JSON `{}`
+- Run — check CloudWatch logs for deletion output
+
+---
+
+## 💡 What I Learned
+
+- How AWS Lambda integrates with EC2 and EBS using Boto3
+- Writing serverless automation for real cloud cost reduction
+- Configuring IAM roles and policies for least-privilege access
+- Using CloudWatch Logs to monitor and audit Lambda executions
+- Understanding EBS snapshot lifecycle and when snapshots become stale
+
+---
+
+## 🔮 Future Improvements
+
+- [ ] Add SNS notifications when snapshots are deleted
+- [ ] Schedule with EventBridge to run automatically every week
+- [ ] Add a dry-run mode to preview deletions before executing
+- [ ] Implement CloudWatch metrics dashboard for cost savings tracking
+- [ ] Extend to clean up unused AMIs and unattached EBS volumes
+
+---
+
+## 👩‍💻 Author
+
+**Sneha Agrawal** — Aspiring Cloud & DevOps Engineer  
+🔗 [LinkedIn](https://www.linkedin.com/in/-snehaagrawal/) · [GitHub](https://github.com/sneha020902) · [Portfolio](https://sneha020902.github.io)
