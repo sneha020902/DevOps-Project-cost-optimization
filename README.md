@@ -27,12 +27,19 @@ No servers. No manual work. Just automated cost savings.
 ## 🏗️ Architecture
 
 AWS Lambda (Python 3.12)
+
 │
+
 ├── boto3.describe_snapshots()     → Get all owned snapshots
+
 ├── boto3.describe_instances()     → Get all running instances
+
 ├── boto3.describe_volumes()       → Check if volume still exists
+
 └── boto3.delete_snapshot()        → Delete stale snapshots
+
 │
+
 └── CloudWatch Logs          → Logs every deletion with snapshot ID
 
 
