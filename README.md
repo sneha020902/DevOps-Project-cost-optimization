@@ -1,4 +1,4 @@
-# 🧹 AWS Cloud Cost Optimization — Stale EBS Snapshot Cleanup
+# AWS Cloud Cost Optimization — Stale EBS Snapshot Cleanup
 
 ![Python](https://img.shields.io/badge/Python-3776AB?style=flat-square&logo=python&logoColor=white)
 ![AWS Lambda](https://img.shields.io/badge/AWS_Lambda-FF9900?style=flat-square&logo=awslambda&logoColor=white)
@@ -7,13 +7,13 @@
 
 ---
 
-## 🧩 The Problem
+## The Problem
 
 AWS accounts accumulate stale EBS snapshots over time — snapshots whose original volumes or instances no longer exist. These sit silently in your account, costing money every month without providing any value. Manually hunting them down is tedious and error-prone.
 
 ---
 
-## ✅ The Solution
+## The Solution
 
 A serverless AWS Lambda function written in Python (Boto3) that automatically:
 - Scans all EBS snapshots owned by the account
@@ -24,22 +24,23 @@ No servers. No manual work. Just automated cost savings.
 
 ---
 
-## 🏗️ Architecture
+## Architecture
 
+```
 AWS Lambda (Python 3.12)
-
-│
-├── boto3.describe_snapshots()     → Get all owned snapshots
-├── boto3.describe_instances()     → Get all running instances
-├── boto3.describe_volumes()       → Check if volume still exists
-└── boto3.delete_snapshot()        → Delete stale snapshots
-│
-└── CloudWatch Logs          → Logs every deletion with snapshot ID
+    │
+    ├── boto3.describe_snapshots()  →  Get all owned snapshots
+    ├── boto3.describe_instances()  →  Get all running instances
+    ├── boto3.describe_volumes()    →  Check if volume still exists
+    └── boto3.delete_snapshot()     →  Delete stale snapshots
+              │
+              └── CloudWatch Logs  →  Logs every deletion with snapshot ID
+```
 
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 | Tool | Purpose |
 |---|---|
@@ -51,7 +52,7 @@ AWS Lambda (Python 3.12)
 
 ---
 
-## 📸 Screenshots
+## Screenshots
 
 ### Lambda Execution — Status: Succeeded
 ![Lambda Execution](screenshots/Screenshot%204.png)
@@ -64,7 +65,7 @@ AWS Lambda (Python 3.12)
 
 ---
 
-## 🚀 How to Deploy
+## How to Deploy
 
 ### Prerequisites
 - AWS account
@@ -85,7 +86,7 @@ AWS Lambda (Python 3.12)
 
 ---
 
-## 💡 What I Learned
+## What I Learned
 
 - How AWS Lambda integrates with EC2 and EBS using Boto3
 - Writing serverless automation for real cloud cost reduction
@@ -95,7 +96,7 @@ AWS Lambda (Python 3.12)
 
 ---
 
-## 🔮 Future Improvements
+## Future Improvements
 
 - [ ] Add SNS notifications when snapshots are deleted
 - [ ] Schedule with EventBridge to run automatically every week
@@ -105,7 +106,7 @@ AWS Lambda (Python 3.12)
 
 ---
 
-## 👩‍💻 Author
+## Author
 
 **Sneha Agrawal** — Aspiring Cloud & DevOps Engineer  
 🔗 [LinkedIn](https://www.linkedin.com/in/-snehaagrawal/) · [GitHub](https://github.com/sneha020902) · [Portfolio](https://sneha020902.github.io)
